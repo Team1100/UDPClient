@@ -47,7 +47,7 @@ public class UDPClient {
         buf = null;
     }
 
-    public static void send_data(String text_to_send, int port) {
+    public static void send_data(InetAddress destination_ip, String text_to_send, int port) {
 
         // loop while user not enters "bye"
 
@@ -58,7 +58,7 @@ public class UDPClient {
 
         // Step 2 : Create the datagramPacket for sending
         // the data.
-        DatagramPacket DpSend = new DatagramPacket(buf, buf.length, ip, port);
+        DatagramPacket DpSend = new DatagramPacket(buf, buf.length, destination_ip, port);
 
         // Step 3 : invoke the send call to actually send
         // the data.
@@ -73,7 +73,7 @@ public class UDPClient {
     public static void setup_gui(){
         JFrame frame = new JFrame("UDP Client");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(600, 600);
+        frame.setSize(1000, 600);
 
         //Creating the MenuBar and adding components
         JMenuBar mb = new JMenuBar();
@@ -105,14 +105,19 @@ public class UDPClient {
         //Creating the panel at bottom and adding components
         JPanel panel = new JPanel(); // the panel is not visible in output
         JLabel label = new JLabel("Enter PID Variables: P, I, D, F");
+        JLabel ip_label = new JLabel("Enter Robot IP");
         JTextField tf_p = new JTextField(5); // accepts upto 10 characters
         JTextField tf_i = new JTextField(5);
         JTextField tf_d = new JTextField(5);
         JTextField tf_f = new JTextField(5);
+        JTextField tf_ip = new JTextField(10);
         JButton send = new JButton("Send");
         JButton reset = new JButton("Reset");
         DefaultListModel<String> l1 = new DefaultListModel<>();
         JList<String> list = new JList<>(l1);
+
+        panel.add(ip_label);
+        panel.add(tf_ip);
 
         panel.add(label); // Components Added using Flow Layout
         panel.add(tf_p);
@@ -122,6 +127,7 @@ public class UDPClient {
         panel.add(send);
         panel.add(reset);
         frame.add(list);
+
 
         //Adding Components to the frame.
         frame.getContentPane().add(BorderLayout.SOUTH, panel);
@@ -133,9 +139,18 @@ public class UDPClient {
             @Override
             public void actionPerformed(ActionEvent e) {
                 pid_var = tf_p.getText() + " " + tf_i.getText() + " " + tf_d.getText() + " " + tf_f.getText();
-                System.out.println(pid_var + " " + port);
-                send_data(pid_var, port);
-                l1.addElement(pid_var + " : " + port);
+                try {
+                    System.out.println(pid_var + " " + port + " " + InetAddress.getByName(tf_ip.getText()));
+                } catch (UnknownHostException e1) {
+                    e1.printStackTrace();
+                }
+
+                try {
+                    send_data(InetAddress.getByName(tf_ip.getText()),pid_var, port);
+                } catch (UnknownHostException e1) {
+                    e1.printStackTrace();
+                }
+                l1.addElement(pid_var + " sent to " + tf_ip.getText() + ":" + port);
             }
         });
 
