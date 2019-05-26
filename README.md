@@ -1,3 +1,5 @@
+# NOTE: This client is yet to be tested. Not guaranteed to work as described.
+
 # UDPClient
 Repository dedicated to the development of the UDP client meant to update PID variables on the robot on the fly.
 
